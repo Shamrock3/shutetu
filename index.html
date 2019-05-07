@@ -1,0 +1,173 @@
+<html>
+	
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8">
+		<title></title>
+	</head>
+	<style>
+		.contain {
+			width: 500px;
+			margin: auto;
+		}
+
+		.timer {
+			width: 310px;
+			font-size: 30px;
+			margin: auto;
+		}
+	</style>
+	<body onload="draw();">
+		<div class='contain'>
+			<div id ='timer' class='timer'>
+			<div>
+				<span id="timer_MM">00</span>:<span id="timer_s">00</span>:<span id="timer_SS">0</span> 当前值:<span id='current_count'>1</span>
+			</div>
+			</div>
+			<canvas  id="base_pic" width="400" height="400">
+				
+			</canvas>
+			
+		</div>
+		
+		
+	</body>
+	<script>
+	
+		
+		var timerFlag = 1;
+		var timerCount = 0;
+		function startOrStopTimer()
+		{
+			
+			if(timerFlag == 1) {
+				setTimeout(startOrStopTimer,100)
+				
+				timerCount ++;
+				var MM = Math.floor(Math.floor(timerCount / 10) / 60);
+				var s = Math.floor(timerCount / 10) % 60;
+				var SS = timerCount % 10;
+				var timer_MM = document.getElementById("timer_MM");
+				var timer_s = document.getElementById("timer_s");
+				var timer_SS = document.getElementById("timer_SS");
+				if(s < 10) {
+					s = '0' + s;
+				}
+				if(MM < 10 ) {
+					MM = '0' + MM;
+				}
+				timer_MM.innerHTML = MM;
+				timer_s.innerHTML = s;
+				timer_SS.innerHTML = SS;
+			} 
+			//console.log("timerCount:" + timerCount)
+			
+			
+		
+		}
+		
+		
+		
+		
+		var point_x = 30
+		var point_y = 30
+		var boxWidth = 50
+		var axisCount = 8
+		var boxContain = new Array();
+		var currentCount = 1;
+		function draw() {
+			 var canvas = document.getElementById("base_pic");
+			 if (canvas.getContext){
+				 var ctx = canvas.getContext('2d');
+				
+				drawAxis(ctx)
+				canvas.addEventListener('click',function(e){
+					console.log('offsetX:' + e.offsetX + ',offsetY:' + e.offsetY)
+					console.log('layerX:' + e.layerX + ',layerY:' + e.layerY)
+					var mousePositionX = e.offsetX;
+					var mousePositionY = e.offsetY;
+					var boxPositionX = mousePositionX - (mousePositionX - point_x ) % boxWidth ;
+					var bpx = Math.floor((mousePositionX - point_x ) / boxWidth );
+					var boxPositionY = mousePositionY - (mousePositionY - point_y ) % boxWidth ;
+					var bpy = Math.floor((mousePositionY - point_y ) / boxWidth);
+					if( currentCount == boxContain[bpx][bpy]) {
+						if(currentCount == 1) {
+							timerFlag = 1;						
+							startOrStopTimer()
+						} else if (currentCount == (axisCount - 1) * (axisCount - 1)) {
+							timerFlag = 0;
+							startOrStopTimer()
+						}
+						ctx.fillStyle = "orange";
+						ctx.fillStyle = "#FFA500";
+						//ctx.fillStyle = "rgb(255,165,0)";
+						console.log("bpx:" + bpx + "bpy" + bpy);	
+						ctx.fillStyle = "rgba(255,165,0,0.5)";
+						//ctx.fillRect(boxPositionX,boxPositionY,boxWidth,boxWidth);
+						var current_count = document.getElementById("current_count");
+						current_count.innerHTML = currentCount;
+						currentCount++;
+						
+					}
+					
+				})
+				
+			 }
+		}
+		
+		
+		function drawAxis(ctx)
+		{
+
+			
+			ctx.beginPath();
+			//ctx.strokeStyle = "#F00";
+			ctx.lineWidth  = 2;
+			for(var i = 0 ; i < axisCount; i++) {
+				ctx.moveTo(point_x,i * boxWidth + point_y);
+				ctx.lineTo((axisCount - 1) * boxWidth + point_x,i * boxWidth + point_y);
+				
+				ctx.moveTo(i * boxWidth + point_x,point_y);
+				ctx.lineTo(i * boxWidth + point_x,(axisCount - 1) * boxWidth + point_y);
+			}
+			ctx.font = boxWidth - 10 + "px serif";
+			
+			randomNumContain = new Array();
+			for(var x = 0; x < axisCount - 1; x++) {
+				var boxContainY = new Array();
+				for(var y = 0; y < axisCount - 1; y++) {
+					var flag = true;
+					var randomNum = 0;
+					while(flag) {
+						randomNum = Math.floor(Math.random() * ((axisCount - 1) * (axisCount - 1)) + 1)
+						if(randomNumContain.length == 0) {
+							flag = false;
+						} else {
+							for(var z = 0 ; z < randomNumContain.length; z++) {
+								if(randomNumContain[z] == randomNum){
+									flag = true;
+									break;
+								} else {
+									flag = false
+								}
+							}
+							
+						}
+						if(flag == false) {
+							randomNumContain.push(randomNum);
+						}
+
+					}
+				
+				
+					ctx.fillText(randomNum, 5 + x * boxWidth + point_x, 40 + y * boxWidth + point_y);
+					boxContainY.push(randomNum)
+				}
+				boxContain.push(boxContainY)
+			}
+			
+			ctx.closePath();
+			ctx.stroke();
+
+		}
+	</script>
+</html>
